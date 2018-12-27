@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    .content { margin: 0; }
+    .editlink, .deletelink { color: rgb(130, 130, 130); text-decoration: none; }
+    .editedTag { color: rgb(130, 130, 130); text-decoration: none; }
+</style>
+
+<div class="example-wrapper">
+    <h1>Your feed</h1>
+    <input type="button" value="New Post" onclick="window.location.replace('/post')">
+
+    <p>This is your messages feed:</p>
+
+    <ul>
+        {% for post in posts %}
+            <li>
+                <span class=author>{{post.getAuthor()}}</span>
+                <span class=timestamp time={{post.getTimeStamp().getTimeStamp()}}> at </span>
+                {% if post.getLastEdited() is not null %}<span class="editedTag" time={{post.getLastEdited().getTimeStamp()}}>Edited on</span>{% endif %}
+                <p class=content>{{post.getContent()}} <a class="editlink" href="/edit/{{post.getId()}}">edit</a> <a class="deletelink" href="/delete/{{post.getId()}}">delete</a></p>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    Array.from(document.getElementsByClassName('timestamp')).forEach(e => {
+        e.innerText += " " + new Date(parseInt(e.attributes.time.value) * 1000).toLocaleString();
+    });
+    Array.from(document.getElementsByClassName('editedTag')).forEach(e => {
+        e.innerText += " " + new Date(parseInt(e.attributes.time.value) * 1000).toLocaleString();
+    });
+</script>
+{% endblock %}
