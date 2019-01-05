@@ -64,24 +64,39 @@ class DefaultController extends Controller
     /**
      * @Route("/edit/{message_number}", name="Edit Message")
      */
-    public function edit($message_number)
+    public function edit(Request $request, $message_number)
     {
-        $entityManager = $this->getDoctrine()->getManager();
+        $post = $this->getDoctrine()
+            ->getRepository(BlogPost::class)
+            ->find($message_number);
 
-        $query = $entityManager->createQuery('SELECT p FROM App\Entity\BlogPost p WHERE p.id = :id');
-        $query->setParameters(array(
-            'id' => $message_number,
-        ));
-        $posts = $query->getResult();
-        $post = NULL;
-        if (sizeof($posts) >= 0)
-        {
-            $post = $posts[0];
+        if (!$post) {
+            return $this->redirectToRoute('default');
         }
-        return $this->render('default/post.html.twig', [
-            'controller_name' => 'DefaultController',
-            'post' => $post,
-        ]);
+
+        $form = $this->createFormBuilder($post)
+           ->add('author', TextType::class)
+           ->add('content', TextType::class)
+           ->add('save', SubmitType::class, array('label' => 'Update Message'))
+           ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+           $post = $form->getData();
+           $post->setTimeStamp(new \DateTime());
+
+           $entityManager = $this->getDoctrine()->getManager();
+           $entityManager->persist($post);
+           $entityManager->flush();
+
+           return $this->redirectToRoute('default');
+        }
+
+        return $this->render('default/post.html.twig', array(
+           'controller_name' => 'DefaultController',
+           'form' => $form->createView(),
+        ));
     }
 
     /**
