@@ -56,6 +56,7 @@ class DefaultController extends Controller
         }
 
         return $this->render('default/post.html.twig', array(
+            'controller_name' => 'DefaultController',
             'form' => $form->createView(),
         ));
     }
