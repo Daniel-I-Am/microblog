@@ -11,13 +11,8 @@
 <div class="example-wrapper">
     <h1>New post</h1>
 
-    <form id="newPost" method="POST" action="/post_message/">
-        {% if post is defined %}<input hidden="hidden" name="id" type="number" value={{post.getId()}}>{% endif %}
-        <input {% if post is not defined %}name="user"{% else %}readonly{% endif %} type="text" placeholder="Username" {% if post is defined %}value={{post.getAuthor()}}{% endif %}>
-        <br />
-        <textarea name="content" type="text" placeholder="Post Content..." rows=10 cols=75>{% if post is defined %}{{post.getContent()}}{% endif %}</textarea>
-        <br />
-        <input type="submit">
-    </form>
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
 </div>
 {% endblock %}
