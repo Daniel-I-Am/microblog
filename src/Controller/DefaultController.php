@@ -17,11 +17,12 @@ class DefaultController extends Controller
      */
     public function index()
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
-        $query = $entityManager->createQuery('SELECT p FROM App\Entity\BlogPost p ORDER BY p.TimeStamp DESC');
-        $query->setMaxResults(10);
-        $posts = $query->getResult();
+        $posts = $this->getDoctrine()
+            ->getRepository(BlogPost::class)
+            ->findBy(
+                [],
+                ['TimeStamp' => 'DESC']
+            );
 
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
