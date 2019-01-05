@@ -3,8 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\BlogPost;
+use App\Form\NewPost;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class DefaultController extends Controller
 {
@@ -28,50 +32,32 @@ class DefaultController extends Controller
     /**
      * @Route("/post/", name="post")
      */
-    public function post()
-    {
-        return $this->render('default/post.html.twig', [
-            'controller_name' => 'DefaultController',
-        ]);
-    }
+     public function post(Request $request)
+     {
+        $newPost = new BlogPost();
 
-    /**
-     * @Route("/post_message/", name="New Message")
-     */
-    public function new_message()
-    {
-        $entityManager = $this->getDoctrine()->getManager();
+        $form = $this->createFormBuilder($newPost)
+            ->add('author', TextType::class)
+            ->add('content', TextType::class)
+            ->add('save', SubmitType::class, array('label' => 'Create Task'))
+            ->getForm();
 
-        // check if an ID has been specifed
-        if (!isset($_POST['id']))
-        {
-            // no ID: make a new post
-            $newPost = new BlogPost();
-            $newPost->setAuthor($_POST['user']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newPost = $form->getData();
             $newPost->setTimeStamp(new \DateTime());
-            $newPost->setContent($_POST['content']);
 
+            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($newPost);
             $entityManager->flush();
-        } else {
-            // ID provided: update the message at ID
-            $query = $entityManager->createQuery('SELECT p FROM App\Entity\BlogPost p WHERE p.id = :id');
-            $query->setParameters(array(
-                'id' => $_POST['id'],
-            ));
-            $posts = $query->getResult();
-            if (sizeof($posts) == 0)
-                return $this->edit($_POST['id']);
-            $post = $posts[0];
-            if ($post->getContent() != $_POST['content']) {
-                $post->setContent($_POST['content']);
-                $post->setLastEdited(new \DateTime());
-            }
-            $entityManager->persist($post);
-            $entityManager->flush();
+
+            return $this->redirectToRoute('default');
         }
 
-        return $this->redirectToRoute('default');
+        return $this->render('default/post.html.twig', array(
+            'form' => $form->createView(),
+        ));
     }
 
     /**
