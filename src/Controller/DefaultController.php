@@ -39,7 +39,7 @@ class DefaultController extends Controller
         $form = $this->createFormBuilder($newPost)
             ->add('author', TextType::class)
             ->add('content', TextType::class)
-            ->add('save', SubmitType::class, array('label' => 'Create Task'))
+            ->add('save', SubmitType::class, array('label' => 'Post Message'))
             ->getForm();
 
         $form->handleRequest($request);
