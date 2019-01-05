@@ -97,13 +97,18 @@ class DefaultController extends Controller
      */
     public function delete($message_number)
     {
+        $post = $this->getDoctrine()
+            ->getRepository(BlogPost::class)
+            ->find($message_number);
+
+        if (!$post) {
+            return $this->redirectToRoute('default');
+        }
+
         $entityManager = $this->getDoctrine()->getManager();
 
-        $query = $entityManager->createQuery('DELETE FROM App\Entity\BlogPost p WHERE p.id = :id');
-        $query->setParameters(array(
-            'id' => $message_number,
-        ));
-        $query->execute();
+        $entityManager->remove($post);
+        $entityManager->flush();
 
         return $this->redirectToRoute('default');
     }
