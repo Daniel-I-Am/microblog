@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\BlogPost;
-use App\Form\NewPost;
+use App\Form\PostType;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -36,11 +36,7 @@ class DefaultController extends Controller
      {
         $newPost = new BlogPost();
 
-        $form = $this->createFormBuilder($newPost)
-            ->add('author', TextType::class)
-            ->add('content', TextType::class)
-            ->add('save', SubmitType::class, array('label' => 'Post Message'))
-            ->getForm();
+        $form = $this->createForm(PostType::class, $newPost);
 
         $form->handleRequest($request);
 
@@ -74,17 +70,13 @@ class DefaultController extends Controller
             return $this->redirectToRoute('default');
         }
 
-        $form = $this->createFormBuilder($post)
-           ->add('author', TextType::class)
-           ->add('content', TextType::class)
-           ->add('save', SubmitType::class, array('label' => 'Update Message'))
-           ->getForm();
+        $form = $this->createForm(PostType::class, $post);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
            $post = $form->getData();
-           $post->setTimeStamp(new \DateTime());
+           $post->setLastEdited(new \DateTime());
 
            $entityManager = $this->getDoctrine()->getManager();
            $entityManager->persist($post);
