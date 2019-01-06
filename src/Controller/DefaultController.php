@@ -17,11 +17,14 @@ class DefaultController extends Controller
      */
     public function index()
     {
+        $message_limit = 10;
+
         $posts = $this->getDoctrine()
             ->getRepository(BlogPost::class)
             ->findBy(
                 [],
-                ['TimeStamp' => 'DESC']
+                ['TimeStamp' => 'DESC'],
+                $message_limit
             );
 
         return $this->render('default/index.html.twig', [
